@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #dfe7e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100px;
+      overflow: hidden;
+      padding: 0 12px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #c9a227;
+      border-radius: 4px;
+      padding: 4px 10px;
+      margin-right: 14px;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: pulse 1.2s infinite;
+      flex-shrink: 0;
+    }
+
+    .live-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: white;
+    }
+
+    .number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 56px;
+      line-height: 1;
+      color: #c9a227;
+      margin-right: 10px;
+      transition: color 0.3s ease;
+    }
+
+    .number.up { color: #4caf50; }
+    .number.down { color: #e53935; }
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .label {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+    }
+
+    .change {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #aaa;
+    }
+
+    .change.up { color: #4caf50; }
+    .change.down { color: #e53935; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.6); }
+    }
+  </style>
+</head>
+<body>
+  <div class="live-badge">
+    <div class="dot"></div>
+    <span class="live-text">LIVE</span>
+  </div>
+  <div class="number" id="preis">–</div>
+  <div class="right">
+    <div class="label">USD / oz</div>
+    <div class="change" id="change">wird geladen...</div>
+  </div>
+
+  <script>
+    let letzterPreis = null;
+
+    async function goldPreisLaden() {
+      try {
+        const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
+        const data = await res.json();
+        const preis = data.items[0].xauPrice;
+        const preisEl = document.getElementById('preis');
+        const changeEl = document.getElementById('change');
+
+        preisEl.textContent = preis.toFixed(2);
+
+        if (letzterPreis !== null) {
+          const diff = preis - letzterPreis;
+          const pfeil = diff >= 0 ? '▲' : '▼';
+          const klasse = diff >= 0 ? 'up' : 'down';
+          preisEl.className = 'number ' + klasse;
+          changeEl.className = 'change ' + klasse;
+          changeEl.textContent = pfeil + ' ' + Math.abs(diff).toFixed(2);
+        } else {
+          changeEl.textContent = 'Gold (XAU)';
+        }
+
+        letzterPreis = preis;
+      } catch (e) {
+        document.getElementById('preis').textContent = 'N/A';
+        document.getElementById('change').textContent = 'Fehler beim Laden';
+      }
+    }
+
+    goldPreisLaden();
+    setInterval(goldPreisLaden, 60000);
+  </script>
+</body>
+</html>
