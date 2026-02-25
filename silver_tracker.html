@@ -67,7 +67,7 @@
     async function laden() {
       try {
         const proxy = 'https://corsproxy.io/?';
-        const url = 'https://query1.finance.yahoo.com/v8/finance/chart/SI=F?interval=1m&range=1d';
+        const url = 'https://query1.finance.yahoo.com/v8/finance/chart/SI=F?interval=1m&range=1d&_=' + Date.now();
         const res = await fetch(proxy + encodeURIComponent(url));
         const data = await res.json();
         const preis = data.chart.result[0].meta.regularMarketPrice.toFixed(2);
