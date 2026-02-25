@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 130px;
+      overflow: hidden;
+    }
+
+    .wrapper {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .preis {
+      font-family: 'Inter', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .label {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: #999;
+    }
+
+    .aktualisiert {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: #bbb;
+      margin-top: 4px;
+    }
+
+    .veraenderung {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div style="display:flex; flex-direction:column; align-items:center;">
+    <div class="wrapper">
+      <div class="preis" id="preis">–</div>
+      <div class="label">USD/oz</div>
+    </div>
+    <div class="aktualisiert" id="aktualisiert">wird geladen...</div>
+    <div class="veraenderung" id="veraenderung"></div>
+  </div>
+
+  <script>
+    async function laden() {
+      try {
+        const proxy = 'https://corsproxy.io/?';
+        const url = 'https://query1.finance.yahoo.com/v8/finance/chart/SI=F?interval=1m&range=1d';
+        const res = await fetch(proxy + encodeURIComponent(url));
+        const data = await res.json();
+        const preis = data.chart.result[0].meta.regularMarketPrice.toFixed(2);
+        document.getElementById('preis').textContent = preis;
+        const jetzt = new Date();
+        const volleStunde = jetzt.getHours().toString().padStart(2, '0') + ':00';
+        document.getElementById('aktualisiert').textContent = 'Preis von ' + volleStunde + ' Uhr';
+
+        const basiswert = 4.73;
+        const prozent = (((preis - basiswert) / basiswert) * 100).toFixed(2);
+        const pfeil = prozent >= 0 ? '▲' : '▼';
+        const veraenderungEl = document.getElementById('veraenderung');
+        veraenderungEl.textContent = pfeil + ' ' + Math.abs(prozent) + '% seit Feb. 1977 (4,73 USD)';
+        veraenderungEl.style.color = prozent >= 0 ? '#4caf50' : '#e53935';
+      } catch (e) {
+        document.getElementById('preis').textContent = 'N/A';
+      }
+    }
+
+    laden();
+
+    const jetzt = new Date();
+    const msZurNaechstenStunde = (60 - jetzt.getMinutes()) * 60000 - jetzt.getSeconds() * 1000;
+    setTimeout(() => {
+      laden();
+      setInterval(laden, 3600000);
+    }, msZurNaechstenStunde);
+  </script>
+</body>
+</html>
