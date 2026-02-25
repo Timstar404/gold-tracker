@@ -84,6 +84,7 @@
         veraenderungEl.style.color = prozent >= 0 ? '#4caf50' : '#e53935';
       } catch (e) {
         document.getElementById('preis').textContent = 'N/A';
+        console.error('Fehler:', e);
       }
     }
 
