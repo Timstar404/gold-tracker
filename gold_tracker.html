@@ -100,9 +100,9 @@
 
     async function goldPreisLaden() {
       try {
-        const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
+        const res = await fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD');
         const data = await res.json();
-        const preis = data.items[0].xauPrice;
+        const preis = data[0].spreadProfilePrices[0].ask.toFixed(2);
         const preisEl = document.getElementById('preis');
         const changeEl = document.getElementById('change');
 
